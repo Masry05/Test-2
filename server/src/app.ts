@@ -31,8 +31,16 @@ app.use((req, _res, next) => {
 });
 
 import mongoose from 'mongoose';
+import connectDB from './config/db';
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
+    try {
+        // Try to ensure connection before checking state
+        await connectDB();
+    } catch (error: any) {
+        console.error('Health check connection attempt failed:', error.message);
+    }
+
     const state = mongoose.connection.readyState;
     const statusMap: { [key: number]: string } = {
         0: 'Disconnected',
@@ -42,12 +50,24 @@ app.get('/', (req, res) => {
     };
     const status = statusMap[state] || 'Unknown';
 
+    // Get connection info for debugging
+    const mongoUri = process.env.MONGO_URI || '';
+    const maskedUri = mongoUri ? 
+        mongoUri.substring(0, 14) + '...' + mongoUri.substring(mongoUri.lastIndexOf('@')) : 
+        'NOT_SET';
+
     console.log(`Health Check - DB Status: ${status} (State: ${state})`);
+    console.log(`MONGO_URI configured: ${!!process.env.MONGO_URI}`);
+    console.log(`Connection host: ${mongoose.connection.host || 'none'}`);
+    
     res.json({
         message: 'Numbers Discussion Tree API is running...',
         database: {
             status,
-            state
+            state,
+            host: mongoose.connection.host || 'not connected',
+            connectionString: maskedUri,
+            mongoUriSet: !!process.env.MONGO_URI
         }
     });
 });
