@@ -2,29 +2,20 @@ import serverless from "serverless-http";
 import app from "../../src/app";
 import connectDB from "../../src/config/db";
 
-// Cache the serverless handler
-let handler: any = null;
+// Ensure database connection
+connectDB().catch((error) => {
+    console.error('❌ Failed to connect to database:', error);
+});
 
-// Initialize connection and create handler
-const getHandler = async () => {
-    if (!handler) {
-        // Ensure database is connected before creating the handler
-        try {
-            await connectDB();
-            console.log('✅ Handler initialized with database connection');
-        } catch (error) {
-            console.error('❌ Failed to connect to database:', error);
-        }
-        
-        handler = serverless(app, {
-            basePath: "/.netlify/functions/api",
-        });
-    }
-    return handler;
-};
+// Create serverless handler
+const serverlessHandler = serverless(app, {
+    basePath: "/.netlify/functions/api",
+});
 
-// Export the async handler
+// Export the handler
 export const handler = async (event: any, context: any) => {
-    const handlerFunction = await getHandler();
-    return handlerFunction(event, context);
+    // AWS Lambda context reuse optimization
+    context.callbackWaitsForEmptyEventLoop = false;
+    
+    return await serverlessHandler(event, context);
 };

@@ -36,9 +36,9 @@ Frontend runs on http://localhost:5173.
 - Recursive visualization of the discussion.
 
 ## API Endpoints
-- `POST /api/auth/register` - Create account
-- `POST /api/auth/login` - Login
-- `GET /api/trees` - Get all trees
-- `GET /api/trees/:id` - Get specific tree nodes
-- `POST /api/trees` - Create root node
-- `POST /api/nodes` - Create reply node
+- `POST /auth/register` - Create account
+- `POST /auth/login` - Login
+- `GET /trees` - Get all trees
+- `GET /trees/:id` - Get specific tree nodes
+- `POST /trees` - Create root node
+- `POST /nodes` - Create reply node
