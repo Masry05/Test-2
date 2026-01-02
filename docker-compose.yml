@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # MongoDB Service
+  mongo:
+    image: mongo:6
+    container_name: numbers-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+  # Backend Service
+  server:
+    build: ./server
+    container_name: numbers-server
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongo:27017/numbers-tree
+      - JWT_SECRET=secret  # In production, use a .env file
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  # Frontend Service
+  client:
+    build: ./client
+    container_name: numbers-client
+    ports:
+      - "4173:4173"
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
+    depends_on:
+      - server
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
