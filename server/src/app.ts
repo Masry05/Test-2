@@ -19,17 +19,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Normalize Netlify function path prefixes so routes mounted at '/'
-// work for both '/api/*' (redirected) and '/.netlify/functions/api/*'.
-app.use((req, _res, next) => {
-    if (req.url.startsWith('/.netlify/functions/api')) {
-        req.url = req.url.replace('/.netlify/functions/api', '');
-    } else if (req.url.startsWith('/api')) {
-        req.url = req.url.replace('/api', '');
-    }
-    next();
-});
-
 import mongoose from 'mongoose';
 import connectDB from './config/db';
 

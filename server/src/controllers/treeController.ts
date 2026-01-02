@@ -68,9 +68,10 @@ export const getTrees = async (req: Request, res: Response) => {
         // For MVP 1.5, let's keep it simple and just show the OP/Value for replies, maybe not author.
 
         res.json(trees);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+    } catch (error: any) {
+        console.error('❌ Error fetching trees:', error);
+        console.error('Error details:', error.message, error.stack);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
