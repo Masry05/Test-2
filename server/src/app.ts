@@ -19,8 +19,26 @@ app.use(cors({
 }));
 app.use(express.json());
 
+import mongoose from 'mongoose';
+
 app.get('/', (req, res) => {
-    res.send('Numbers Discussion Tree API is running...');
+    const state = mongoose.connection.readyState;
+    const statusMap: { [key: number]: string } = {
+        0: 'Disconnected',
+        1: 'Connected',
+        2: 'Connecting',
+        3: 'Disconnecting',
+    };
+    const status = statusMap[state] || 'Unknown';
+
+    console.log(`Health Check - DB Status: ${status} (State: ${state})`);
+    res.json({
+        message: 'Numbers Discussion Tree API is running...',
+        database: {
+            status,
+            state
+        }
+    });
 });
 
 // Routes
