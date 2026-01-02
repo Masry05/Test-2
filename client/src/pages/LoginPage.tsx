@@ -13,8 +13,13 @@ const LoginPage = () => {
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
+    const isInvalidCredentials = error === 'Invalid credentials' || error === 'User not found' || error === 'Wrong password';
+    const isUserNotFound = error === 'User not found';
+    const isWrongPassword = error === 'Wrong password';
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(''); // Clear any previous errors
         try {
             const res = await api.post('/auth/login', { username, password });
             login(res.data);
@@ -28,7 +33,7 @@ const LoginPage = () => {
         <div className="max-w-md mx-auto mt-10 p-8 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700">
             <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white text-center">Welcome Back</h2>
 
-            {error && <div className="mb-4 relative"><Alert message={error} onClose={() => setError('')} /></div>}
+            {error && !isInvalidCredentials && <div className="mb-4 relative"><Alert message={error} onClose={() => setError('')} /></div>}
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -36,10 +41,22 @@ const LoginPage = () => {
                     <input
                         type="text"
                         value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        onChange={(e) => {
+                            setUsername(e.target.value);
+                            if (isInvalidCredentials) setError('');
+                        }}
                         required
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:text-white"
+                        className={`w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border rounded-lg focus:ring-2 outline-none transition-all dark:text-white
+                            ${isUserNotFound
+                                ? 'border-red-500 focus:ring-red-500/20'
+                                : 'border-gray-200 dark:border-gray-600 focus:ring-blue-500'
+                            }`}
                     />
+                    {isUserNotFound && (
+                        <p className="mt-1 text-sm text-red-500 animate-in slide-in-from-top-1">
+                            Username doesn't exist
+                        </p>
+                    )}
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
@@ -47,9 +64,16 @@ const LoginPage = () => {
                         <input
                             type={showPassword ? "text" : "password"}
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => {
+                                setPassword(e.target.value);
+                                if (isInvalidCredentials) setError('');
+                            }}
                             required
-                            className="w-full px-4 py-2 pr-10 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all dark:text-white"
+                            className={`w-full px-4 py-2 pr-10 bg-gray-50 dark:bg-gray-900 border rounded-lg focus:ring-2 outline-none transition-all dark:text-white
+                                ${isWrongPassword
+                                    ? 'border-red-500 focus:ring-red-500/20'
+                                    : 'border-gray-200 dark:border-gray-600 focus:ring-blue-500'
+                                }`}
                         />
                         <button
                             type="button"
@@ -60,6 +84,11 @@ const LoginPage = () => {
                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                     </div>
+                    {isWrongPassword && (
+                        <p className="mt-1 text-sm text-red-500 animate-in slide-in-from-top-1">
+                            Incorrect password
+                        </p>
+                    )}
                 </div>
                 <button
                     type="submit"

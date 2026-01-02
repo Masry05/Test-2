@@ -18,6 +18,14 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Debug middleware to log request body
+app.use((req, _res, next) => {
+    console.log('Request body:', req.body);
+    console.log('Content-Type:', req.headers['content-type']);
+    next();
+});
 
 import mongoose from 'mongoose';
 import connectDB from './config/db';

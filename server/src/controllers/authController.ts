@@ -43,8 +43,11 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
     try {
+        console.log('Login attempt - Request body:', req.body);
+        
         const validation = loginSchema.safeParse(req.body);
         if (!validation.success) {
+            console.log('Validation failed:', validation.error.issues);
             return res.status(400).json({ errors: validation.error.issues });
         }
 
@@ -52,16 +55,23 @@ export const login = async (req: Request, res: Response) => {
 
         const user = await User.findOne({ username });
 
-        if (user && (await bcrypt.compare(password, user.passwordHash))) {
-            res.json({
-                _id: user._id,
-                username: user.username,
-                token: generateToken(user._id.toString()),
-            });
-        } else {
-            res.status(401).json({ message: 'Invalid credentials' });
+        if (!user) {
+            return res.status(401).json({ message: 'User not found' });
         }
+
+        const isPasswordCorrect = await bcrypt.compare(password, user.passwordHash);
+        
+        if (!isPasswordCorrect) {
+            return res.status(401).json({ message: 'Wrong password' });
+        }
+
+        res.json({
+            _id: user._id,
+            username: user.username,
+            token: generateToken(user._id.toString()),
+        });
     } catch (error) {
+        console.error('Login error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
