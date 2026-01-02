@@ -50,24 +50,13 @@ app.get('/', async (req, res) => {
     };
     const status = statusMap[state] || 'Unknown';
 
-    // Get connection info for debugging
-    const mongoUri = process.env.MONGO_URI || '';
-    const maskedUri = mongoUri ? 
-        mongoUri.substring(0, 14) + '...' + mongoUri.substring(mongoUri.lastIndexOf('@')) : 
-        'NOT_SET';
-
     console.log(`Health Check - DB Status: ${status} (State: ${state})`);
-    console.log(`MONGO_URI configured: ${!!process.env.MONGO_URI}`);
-    console.log(`Connection host: ${mongoose.connection.host || 'none'}`);
     
     res.json({
         message: 'Numbers Discussion Tree API is running...',
         database: {
             status,
-            state,
-            host: mongoose.connection.host || 'not connected',
-            connectionString: maskedUri,
-            mongoUriSet: !!process.env.MONGO_URI
+            state
         }
     });
 });

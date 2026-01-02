@@ -53,8 +53,6 @@ const connectDB = async () => {
             }
 
             console.log('🔄 Creating new database connection...');
-            console.log('📍 Connection string prefix:', MONGO_URI.substring(0, 25) + '...');
-            console.log('📍 Connection string suffix:', '...' + MONGO_URI.substring(MONGO_URI.lastIndexOf('@')));
 
             // Mongoose connection options optimized for serverless
             const connection = await mongoose.connect(MONGO_URI, {
