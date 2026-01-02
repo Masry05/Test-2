@@ -43,33 +43,9 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
     try {
-        console.log('Login attempt - Full request details:');
-        console.log('Body:', req.body);
-        console.log('Headers:', req.headers);
-        console.log('Content-Type:', req.headers['content-type']);
-        
-        // Debug response to see what we're receiving
-        if (!req.body || Object.keys(req.body).length === 0) {
-            return res.status(400).json({ 
-                message: 'No body received',
-                debug: {
-                    body: req.body,
-                    contentType: req.headers['content-type'],
-                    headers: req.headers
-                }
-            });
-        }
-        
         const validation = loginSchema.safeParse(req.body);
         if (!validation.success) {
-            console.log('Validation failed:', validation.error.issues);
-            return res.status(400).json({ 
-                errors: validation.error.issues,
-                debug: {
-                    receivedBody: req.body,
-                    contentType: req.headers['content-type']
-                }
-            });
+            return res.status(400).json({ errors: validation.error.issues });
         }
 
         const { username, password } = validation.data;
